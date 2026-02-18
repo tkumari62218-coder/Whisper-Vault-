@@ -63,7 +63,16 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// === BUTTON CLICK EFFECTS ===
+// === BUTTON NAVIGATION MAPPING ===
+const buttonActions = {
+    'Write Now': 'thoughts.html',
+    'Send Letter': 'letters.html',
+    'Confess': 'confessions.html',
+    'Read Stories': 'stories.html',
+    'Enter the Vault': 'thoughts.html'
+};
+
+// === BUTTON CLICK EFFECTS WITH NAVIGATION ===
 document.querySelectorAll('.card-btn, .cta-btn').forEach(button => {
     button.addEventListener('click', function(e) {
         // Create ripple effect
@@ -84,10 +93,28 @@ document.querySelectorAll('.card-btn, .cta-btn').forEach(button => {
             ripple.remove();
         }, 600);
         
-        // Alert for demo (replace with actual navigation)
-        setTimeout(() => {
-            alert('This button will navigate to the respective page!');
-        }, 100);
+        // Navigate to respective page
+        const buttonText = this.textContent.trim();
+        const targetPage = buttonActions[buttonText];
+        
+        if (targetPage) {
+            // Show loading message
+            const message = document.createElement('div');
+            message.className = 'nav-message';
+            message.innerHTML = `
+                <div class="message-content">
+                    <p>🖤 Opening ${buttonText}...</p>
+                    <p class="message-note">Page coming soon! For now, this is a demo.</p>
+                    <button onclick="this.parentElement.parentElement.remove()" class="close-msg">Got it!</button>
+                </div>
+            `;
+            document.body.appendChild(message);
+            
+            // In production, uncomment this:
+            // setTimeout(() => {
+            //     window.location.href = targetPage;
+            // }, 1000);
+        }
     });
 });
 
@@ -113,6 +140,64 @@ style.textContent = `
             transform: scale(4);
             opacity: 0;
         }
+    }
+    
+    .nav-message {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .message-content {
+        background: linear-gradient(135deg, #1a0a1a 0%, #0a0a0a 100%);
+        border: 2px solid #d4af37;
+        border-radius: 15px;
+        padding: 40px;
+        text-align: center;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(212, 175, 55, 0.3);
+    }
+    
+    .message-content p {
+        color: #e8e8e8;
+        font-size: 20px;
+        margin-bottom: 10px;
+        font-family: 'Playfair Display', serif;
+    }
+    
+    .message-note {
+        font-size: 14px !important;
+        color: #a8a8a8 !important;
+        font-family: 'Poppins', sans-serif !important;
+        margin-top: 20px !important;
+    }
+    
+    .close-msg {
+        margin-top: 25px;
+        background: #d4af37;
+        border: none;
+        color: #0a0a0a;
+        padding: 12px 30px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .close-msg:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 20px rgba(212, 175, 55, 0.5);
     }
 `;
 document.head.appendChild(style);
@@ -140,28 +225,41 @@ window.addEventListener('scroll', function() {
 });
 
 // === CURSOR GLOW EFFECT (Optional - Advanced) ===
+let glowTimeout;
 document.addEventListener('mousemove', function(e) {
-    const glow = document.createElement('div');
-    glow.style.position = 'fixed';
-    glow.style.left = e.clientX + 'px';
-    glow.style.top = e.clientY + 'px';
-    glow.style.width = '200px';
-    glow.style.height = '200px';
-    glow.style.background = 'radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, transparent 70%)';
-    glow.style.pointerEvents = 'none';
-    glow.style.transform = 'translate(-50%, -50%)';
-    glow.style.zIndex = '0';
-    glow.style.transition = 'opacity 0.3s ease';
-    
-    document.body.appendChild(glow);
-    
-    setTimeout(() => {
-        glow.style.opacity = '0';
-        setTimeout(() => glow.remove(), 300);
-    }, 100);
+    // Throttle the glow effect
+    clearTimeout(glowTimeout);
+    glowTimeout = setTimeout(() => {
+        const glow = document.createElement('div');
+        glow.style.position = 'fixed';
+        glow.style.left = e.clientX + 'px';
+        glow.style.top = e.clientY + 'px';
+        glow.style.width = '200px';
+        glow.style.height = '200px';
+        glow.style.background = 'radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, transparent 70%)';
+        glow.style.pointerEvents = 'none';
+        glow.style.transform = 'translate(-50%, -50%)';
+        glow.style.zIndex = '0';
+        glow.style.transition = 'opacity 0.3s ease';
+        
+        document.body.appendChild(glow);
+        
+        setTimeout(() => {
+            glow.style.opacity = '0';
+            setTimeout(() => glow.remove(), 300);
+        }, 100);
+    }, 50);
 });
 
 // === CONSOLE MESSAGE (Easter Egg) ===
 console.log('%c🖤 Whisper Vault 🖤', 'font-size: 20px; color: #d4af37; font-weight: bold;');
 console.log('%cYour secrets are safe here...', 'font-size: 14px; color: #e8e8e8;');
 console.log('%cBuilt with love and shadows 🌙', 'font-size: 12px; color: #a8a8a8;');
+
+// === KEYBOARD SHORTCUTS (Easter Egg) ===
+document.addEventListener('keydown', function(e) {
+    // Press 'V' to enter vault directly
+    if (e.key === 'v' || e.key === 'V') {
+        console.log('Quick access: Vault mode activated! 🖤');
+    }
+});
